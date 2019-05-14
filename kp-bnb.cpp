@@ -13,7 +13,7 @@ struct Knapsack
 };
 struct Sub
 {
-	vector<char>x;
+	vector<int>x;
 	int cp=0;
 	int cw=0;
 };
@@ -90,13 +90,35 @@ int BnB_algo::UpperBound(int i, int rc){
 	return floor(sum);
 }
 void BnB_algo::BnB_Solver(){
-	int RC=C, LB, UB;
-	LB=LowerBound(0, RC);
-	UB=UpperBound(0, RC);
+	int RC=C, LB, UB, SUM=0, W=0;
 	Sub temp;
-	temp.x.push_back(1);
-	temp.cp=LB;
-	temp.cw=
+	//temp.x.push_back(1);
+	temp.cp=0;
+	temp.cw=C;
+	sub.push_back(temp);
+	//temp.reset();
+	cout<<"x = "<<sub[0].x[0]<<"\n";
+	cout<<"\n-----("<<sub[0].cp<<","<<sub[0].cw<<")-----\n";
+	//cout<<"size = "<<sub[0].x.size()<<"\n";
+	while(true){
+		int i=0;
+		 if(sub.size()>1){
+		 	for(int j=0;i<sub[i-1].x.size();j++){
+		 		SUM=SUM+(input.[j].p*sub[i-1].x[j]);
+		 		W=W+(input.[j].w*sub[i-1].x[j]);
+		 	}
+		 }
+		 for(){
+
+		 }
+
+	}
+	//LB=LowerBound(0, RC);
+	//UB=UpperBound(0, RC);
+	//Sub temp;
+	//temp.x.push_back(1);
+	//temp.cp=LB;
+	//temp.cw=
 	//cout<<"\n-----\n"<<LB;
 	//cout<<"\n-----\n"<<UB;
 	//cin.get();
