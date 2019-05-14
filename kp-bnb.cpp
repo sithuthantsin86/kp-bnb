@@ -108,8 +108,8 @@ void BnB_algo::BnB_Solver(){
 		 		W=W+(input.[j].w*sub[i-1].x[j]);
 		 	}
 		 }
-		 for(){
-
+		 for(int k=i; k<N; k++){
+		 	
 		 }
 
 	}
