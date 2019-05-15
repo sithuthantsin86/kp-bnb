@@ -15,13 +15,13 @@ struct Sub
 {
 	vector<int>x;
 	int cp=0;
-	int cw=0;
-};
-struct Record
-{
-	vector<char>x;
-	int p=0;
 	int rc=0;
+	int ub = 0;
+};
+struct Solution
+{
+	vector<int>x;
+	int p=0;
 };
 class BnB_algo{
 	vector<Knapsack>input;
@@ -59,7 +59,7 @@ void BnB_algo::ReadInput(char *file_name){
     g.close();
     sort(input.begin(), input.end(), compare);
 }
-int BnB_algo::LowerBound(int sp, int rc){
+/*int BnB_algo::LowerBound(int sp, int rc){
 	int sum=0, i=sp;
 	while(rc>=input[i].w){
 		sum=input[i].p+sum;
@@ -88,30 +88,57 @@ int BnB_algo::UpperBound(int i, int rc){
 	//cout<<"\n---InUBLoop1---\n"<<sum<<"=="<<rc;
 	//cin.get();
 	return floor(sum);
-}
+}*/
 void BnB_algo::BnB_Solver(){
-	int RC=C, LB, UB, SUM=0, W=0;
-	Sub temp;
+	int RC=C, LB=0, UB=0, SUM=0, X1_p=0, X1_rc=0, X0_p=0, X0_rc=0, i=0, j=0, k=0, l=0;
+	Sub temp_sub;
+	Record record;
+	record.p=0;
 	//temp.x.push_back(1);
-	temp.cp=0;
-	temp.cw=C;
-	sub.push_back(temp);
+	temp_sub.cp=0;
+	temp_sub.rc=RC;
+	sub.push_back(temp_sub);
 	//temp.reset();
-	cout<<"x = "<<sub[0].x[0]<<"\n";
-	cout<<"\n-----("<<sub[0].cp<<","<<sub[0].cw<<")-----\n";
+	//cout<<"x = "<<sub[0].x[0]<<"\n";
+	//cout<<"\n-----("<<sub[0].cp<<","<<sub[0].cw<<")-----\n";
 	//cout<<"size = "<<sub[0].x.size()<<"\n";
 	while(true){
-		int i=0;
 		 if(sub.size()>1){
-		 	for(int j=0;i<sub[i-1].x.size();j++){
-		 		SUM=SUM+(input.[j].p*sub[i-1].x[j]);
-		 		W=W+(input.[j].w*sub[i-1].x[j]);
+		 	for(j=0;i<sub[i-1].x.size();j++){
+		 		SUM=SUM+(input[j].p*sub[i-1].x[j]);
+		 		RC=RC-(input[j].w*sub[i-1].x[j]);
+		 		temp_sub.x.push_back(sub[i-1].x[j]);
 		 	}
 		 }
-		 for(int k=i; k<N; k++){
-		 	
+		 k=i;
+		 while(input[k].w<=RC){
+		 	X1_p = X1_p+input[k].p;
+		 	RC = RC-input[k].w;
+		 	temp_sub.x.push_back(1);
+		 	k++;
 		 }
-
+		 LB=SUM+X1_p;
+		 UB=LB+(((double)input[k].p/(double)input[k].w)*(double)RC);
+		 temp_sub.cp=UB;
+		 temp_sub.rc=RC;
+		 sub.push_back(temp_sub);
+		 if(LB>record.p){
+		 	record.p=LB;
+		 	record.x.clear();
+		 	for (int m=0; m<temp_sub.x.size(); m++) 
+        		record.x.push_back(temp_sub.x[m]);
+		 }
+		 k=i+1;
+		 for(int n=0;n<sub.size();n++){
+		 	cout<<"\n("<<sub[n].cp<<","<<sub[n].rc<<")\nx = (";
+		 	for(int o=0;o<sub[n].x.size();o++)cout<<sub[n].x[o]<<",";
+		 	cout<<")\n";
+		 }
+		 cout<<"Record = "<<record.p<<"\nx = (";
+		 for(int p=0;p<record.x.size();p++)cout<<record.x[p]<<",";
+		 cout<<")\n";
+		i++;
+		 cin.get();
 	}
 	//LB=LowerBound(0, RC);
 	//UB=UpperBound(0, RC);
