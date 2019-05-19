@@ -11,11 +11,11 @@ struct Knapsack
 	int p, w, k;
 	float div;
 };
-struct Sub
+struct Subproblems
 {
 	vector<int>x;
-	int cp=0;
-	int rc=0;
+	int cp = 0;
+	int rc = 0;
 	int ub = 0;
 };
 struct Solution
@@ -24,15 +24,14 @@ struct Solution
 	int p=0;
 };
 class BnB_algo{
-	vector<Knapsack>input;
-	vector<Sub>sub;
+	vector<Knapsack>knp;
+	vector<Subproblems>sub;
+	Solution sol;
 	long int N, C;
 	public:
 	void ReadInput(char *file_name);
-	int LowerBound(int i, int rc);
-	int UpperBound(int p, int rc);
+	void Bound(int i);
 	void BnB_Solver();
-	void PrintResult(int size);
 };
 bool compare(const Knapsack &a, const Knapsack &b){
 	return a.div > b.div;
@@ -50,54 +49,61 @@ void BnB_algo::ReadInput(char *file_name){
 	for(i = 0; i < N; i ++){
 		g >> a;
 		g >> b;
-		input.push_back(Knapsack());
-		input[i].p = a;
-		input[i].w = b;
-		input[i].k = i;
-		input[i].div = ((float)a)/((float)b);
+		knp.push_back(Knapsack());
+		knp[i].p = a;
+		knp[i].w = b;
+		knp[i].k = i;
+		knp[i].div = ((float)a)/((float)b);
 	}
     g.close();
-    sort(input.begin(), input.end(), compare);
+    sort(knp.begin(), knp.end(), compare);
 }
-/*int BnB_algo::LowerBound(int sp, int rc){
-	int sum=0, i=sp;
-	while(rc>=input[i].w){
-		sum=input[i].p+sum;
-		rc=rc-input[i].w;
-		i++;
+void BnB_algo::Bound(int i){
+	Subproblems temp;
+	temp.cp=0;
+	temp.rc=C;
+	if(sub.size()==0){
+	 	while(knp[i].w<=temp.rc){
+	 		temp.cp += knp[i].p;
+	 		temp.rc -= knp[i].w;
+	 		temp.x.push_back(1);
+	 		i++;
+		}
+		temp.ub=temp.cp+(((double)knp[i].p/(double)knp[i].w)*(double)temp.rc);
+		sub.push_back(temp);
+		sol.p=temp.cp;
+		sol.x.clear();
+	 	for(int m=0; m<temp.x.size(); m++)sol.x.push_back(temp.x[m]);
+	 	temp.x.clear();
 	}
-	if(sp==0){
-		Sub temp;
-		temp.x.push_back(1);
-		temp.cp=sum;
-		temp.cw=rc;
+	if(sub.size()>0){
+		for(int j=0;i<sub[i-1].x.size();j++){
+	 		temp.cp += knp[j].p * sub[i-1].x[j];
+	 		temp.rc -= knp[j].w * sub[i-1].x[j];
+	 		temp.x.push_back(sub[i-1].x[j]);
+	 	}
+	 	while(knp[i].w<=temp.rc){
+	 		temp.cp += knp[i].p;
+	 		temp.rc -= knp[i].w;
+	 		temp.x.push_back(1);
+	 		i++;
+		}
+		temp.ub=temp.cp+(((double)knp[i].p/(double)knp[i].w)*(double)temp.rc);
+		sub.push_back(temp);
+		if(temp.cp>sol.p){
+			sol.p=temp.cp;
+			sol.x.clear();
+	 		for(int m=0; m<temp.x.size(); m++)sol.x.push_back(temp.x[m]);
+		}
+		temp.x.clear();
 	}
-	return sum;
 }
-int BnB_algo::UpperBound(int i, int rc){
-	double sum=0;
-	while(rc>=input[i].w){
-		sum=input[i].p+sum;
-		rc=rc-input[i].w;
-		i++;
-	}
-	//cout<<"\n---InUBLoop1---\n"<<sum<<"=="<<rc<<"+++"<<input[i].p<<","<<input[i].w;
-	//cin.get();
-	//if(sum>record)record=sum;
-	if(rc>0)sum=sum+(((double)input[i].p/(double)input[i].w)*(double)rc);
-	//cout<<"\n---InUBLoop1---\n"<<sum<<"=="<<rc;
-	//cin.get();
-	return floor(sum);
-}*/
 void BnB_algo::BnB_Solver(){
 	int RC=C, LB=0, UB=0, SUM=0, X1_p=0, X1_rc=0, X0_p=0, X0_rc=0, i=0, j=0, k=0, l=0;
-	Sub temp_sub;
-	Record record;
-	record.p=0;
 	//temp.x.push_back(1);
-	temp_sub.cp=0;
-	temp_sub.rc=RC;
-	sub.push_back(temp_sub);
+	//temp_sub.cp=0;
+	//temp_sub.rc=RC;
+	//sub.push_back(temp_sub);
 	//temp.reset();
 	//cout<<"x = "<<sub[0].x[0]<<"\n";
 	//cout<<"\n-----("<<sub[0].cp<<","<<sub[0].cw<<")-----\n";
@@ -140,30 +146,7 @@ void BnB_algo::BnB_Solver(){
 		i++;
 		 cin.get();
 	}
-	//LB=LowerBound(0, RC);
-	//UB=UpperBound(0, RC);
-	//Sub temp;
-	//temp.x.push_back(1);
-	//temp.cp=LB;
-	//temp.cw=
-	//cout<<"\n-----\n"<<LB;
-	//cout<<"\n-----\n"<<UB;
-	//cin.get();
-	/*if(LowerBound(0, RC)>record){
-		Sub[0].x='1';
-		Sub[0].cp=input[0].p;
-		Sub[0].cw=RC-input[0].w;
-	}
-	if(BnB(1, RC)>record)Sub[0].x='0';
-	for(int i=1; i<N; i++){
-		UB1=Sub[k].cp+BnB(i, RC);
-		UB2=Sub[k].cp+BnB(i+1, RC);
-	}*/
 }
-/*void BnB_algo::print(int size){
-
-
-}*/
 int main(int argc, char* argv[]){
 	time_t start, end;
 	vector<Knapsack>input;
