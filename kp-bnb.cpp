@@ -33,9 +33,12 @@ class BnB_algo{
 	void Bound(int i);
 	void BnB_Solver();
 };
-bool compare(const Knapsack &a, const Knapsack &b){
+bool comp_sort(const Knapsack &a, const Knapsack &b){
 	return a.div > b.div;
 }
+bool comp_max(int a, int b){ 
+    return (a < b); 
+} 
 void BnB_algo::ReadInput(char *file_name){
 	ifstream g;
 	int a, b, i=0;
@@ -56,50 +59,88 @@ void BnB_algo::ReadInput(char *file_name){
 		knp[i].div = ((float)a)/((float)b);
 	}
     g.close();
-    sort(knp.begin(), knp.end(), compare);
+    sort(knp.begin(), knp.end(), comp_sort);
 }
 void BnB_algo::Bound(int i){
-	Subproblems temp;
-	temp.cp=0;
-	temp.rc=C;
+	Subproblems temp_x1, temp_x0;
+	int k=i+1;
+	temp_x1.cp=0;
+	temp_x1.rc=C;
+	temp_x0.cp=0;
+	temp_x0.rc=C;
 	if(sub.size()==0){
-	 	while(knp[i].w<=temp.rc){
-	 		temp.cp += knp[i].p;
-	 		temp.rc -= knp[i].w;
-	 		temp.x.push_back(1);
+	 	while(knp[i].w<=temp_x1.rc){
+	 		temp_x1.cp += knp[i].p;
+	 		temp_x1.rc -= knp[i].w;
+	 		temp_x1.x.push_back(1);
 	 		i++;
 		}
-		temp.ub=temp.cp+(((double)knp[i].p/(double)knp[i].w)*(double)temp.rc);
-		sub.push_back(temp);
-		sol.p=temp.cp;
+		while(knp[k].w<=temp_x0.rc){
+			temp_x0.cp += knp[k].p;
+	 		temp_x0.rc -= knp[k].w;
+	 		temp_x0.x.push_back(1);
+	 		k++;
+		}
+		temp_x1.ub=temp_x1.cp+(((double)knp[i].p/(double)knp[i].w)*(double)temp_x1.rc);
+		temp_x0.ub=temp_x0.cp+(((double)knp[k].p/(double)knp[k].w)*(double)temp_x0.rc);
+		sub.push_back(temp_x1);
+		sub.push_back(temp_x0);
+		sol.p=temp_x1.cp;
 		sol.x.clear();
-	 	for(int m=0; m<temp.x.size(); m++)sol.x.push_back(temp.x[m]);
-	 	temp.x.clear();
+	 	for(int m=0; m<temp_x1.x.size(); m++)sol.x.push_back(temp_x1.x[m]);
+	 	if(temp_x0.cp>sol.p){
+	 		sol.p=temp_x0.cp;
+			sol.x.clear();
+	 		for(int m=0; m<temp_x0.x.size(); m++)sol.x.push_back(temp_x0.x[m]);
+	 	}
+	 	temp_x1.x.clear();
+	 	temp_x0.x.clear();
 	}
 	if(sub.size()>0){
 		for(int j=0;i<sub[i-1].x.size();j++){
-	 		temp.cp += knp[j].p * sub[i-1].x[j];
-	 		temp.rc -= knp[j].w * sub[i-1].x[j];
-	 		temp.x.push_back(sub[i-1].x[j]);
+	 		temp_x1.cp += knp[j].p * sub[i-1].x[j];
+	 		temp_x0.cp = temp_x1.cp;
+	 		temp_x1.rc -= knp[j].w * sub[i-1].x[j];
+	 		temp_x0.rc = temp_x1.rc;
+	 		temp_x1.x.push_back(sub[i-1].x[j]);
+	 		temp_x0.x.push_back(sub[i-1].x[j]);
 	 	}
-	 	while(knp[i].w<=temp.rc){
-	 		temp.cp += knp[i].p;
-	 		temp.rc -= knp[i].w;
-	 		temp.x.push_back(1);
+	 	while(knp[i].w<=temp_x1.rc){
+	 		temp_x1.cp += knp[i].p;
+	 		temp_x1.rc -= knp[i].w;
+	 		temp_x1.x.push_back(1);
 	 		i++;
 		}
-		temp.ub=temp.cp+(((double)knp[i].p/(double)knp[i].w)*(double)temp.rc);
-		sub.push_back(temp);
-		if(temp.cp>sol.p){
-			sol.p=temp.cp;
-			sol.x.clear();
-	 		for(int m=0; m<temp.x.size(); m++)sol.x.push_back(temp.x[m]);
+		while(knp[k].w<=temp_x0.rc){
+			temp_x0.cp += knp[k].p;
+	 		temp_x0.rc -= knp[k].w;
+	 		temp_x0.x.push_back(1);
+	 		k++;
 		}
-		temp.x.clear();
+		temp_x1.ub=temp_x1.cp+(((double)knp[i].p/(double)knp[i].w)*(double)temp_x1.rc);
+		temp_x0.ub=temp_x0.cp+(((double)knp[k].p/(double)knp[k].w)*(double)temp_x0.rc);
+		sub.push_back(temp_x1);
+		sub.push_back(temp_x0);
+		if(temp_x1.cp>sol.p){
+			sol.p=temp_x1.cp;
+			sol.x.clear();
+	 		for(int m=0; m<temp_x1.x.size(); m++)sol.x.push_back(temp_x1.x[m]);
+		}
+		if(temp_x0.cp>sol.p){
+			sol.p=temp_x0.cp;
+			sol.x.clear();
+	 		for(int m=0; m<temp_x0.x.size(); m++)sol.x.push_back(temp_x0.x[m]);
+		}
+		temp_x1.x.clear();
+		temp_x0.x.clear();
 	}
 }
 void BnB_algo::BnB_Solver(){
 	int RC=C, LB=0, UB=0, SUM=0, X1_p=0, X1_rc=0, X0_p=0, X0_rc=0, i=0, j=0, k=0, l=0;
+	for(int i=0; i<N; i++){
+		Bound(i);
+
+	}
 	//temp.x.push_back(1);
 	//temp_sub.cp=0;
 	//temp_sub.rc=RC;
