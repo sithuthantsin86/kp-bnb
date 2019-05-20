@@ -43,7 +43,7 @@ void BnB_algo::ReadInput(char *file_name){
 	if(!g.is_open()){
       		std::cerr << "Error: file could not be opened for <g>." << std::endl;
       		exit(1);
-       	}
+    }
 	g >> N;
 	g >> C;
 	for(i = 0; i < N; i ++){
