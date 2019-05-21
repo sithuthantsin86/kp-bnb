@@ -11,7 +11,7 @@ struct Knapsack
 	int p, w, k;
 	float div;
 };
-struct Subproblems
+struct Subproblem
 {
 	vector<int>x;
 	int cp = 0;
@@ -25,20 +25,18 @@ struct Solution
 };
 class BnB_algo{
 	vector<Knapsack>knp;
-	vector<Subproblems>sub;
-	Solution sol;
+	vector<Subproblem>sub;
+	Solution record;
 	long int N, C;
 	public:
 	void ReadInput(char *file_name);
-	void Bound(int i);
+	void Bound(Subproblem &S);
+	//void Bounds(int i);
 	void BnB_Solver();
 };
 bool comp_sort(const Knapsack &a, const Knapsack &b){
 	return a.div > b.div;
 }
-bool comp_max(int a, int b){ 
-    return (a < b); 
-} 
 void BnB_algo::ReadInput(char *file_name){
 	ifstream g;
 	int a, b, i=0;
@@ -61,8 +59,21 @@ void BnB_algo::ReadInput(char *file_name){
     g.close();
     sort(knp.begin(), knp.end(), comp_sort);
 }
-void BnB_algo::Bound(int i){
-	Subproblems temp_x1, temp_x0;
+Subproblem BnB_algo::Bound(Subproblem &sub){
+	int i;
+	for(i=0;i<sub.x.size();i++){
+	 	sub.cp += knp[i].p * sub.x[i];
+	 	sub.rc -= knp[i].w * sub.x[i];
+	}
+	while(knp[i].w<=sub.rc){
+	 		sub.cp += knp[i].p;
+	 		sub.rc -= knp[i].w;
+	 		sub.x.push_back(1);
+	 		i++;
+	}
+	return S;
+}
+/*	Subproblem temp_x1, temp_x0;
 	int k=i+1;
 	temp_x1.cp=0;
 	temp_x1.rc=C;
@@ -134,9 +145,9 @@ void BnB_algo::Bound(int i){
 		temp_x1.x.clear();
 		temp_x0.x.clear();
 	}
-}
+}*/
 void BnB_algo::BnB_Solver(){
-	int RC=C, LB=0, UB=0, SUM=0, X1_p=0, X1_rc=0, X0_p=0, X0_rc=0, i=0, j=0, k=0, l=0;
+	int i=0, j=0, k=0, l=0;
 	for(int i=0; i<N; i++){
 		Bound(i);
 
