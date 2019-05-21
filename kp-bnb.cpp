@@ -66,10 +66,10 @@ Subproblem BnB_algo::Bound(Subproblem &sub){
 	 	sub.rc -= knp[i].w * sub.x[i];
 	}
 	while(knp[i].w<=sub.rc){
-	 		sub.cp += knp[i].p;
-	 		sub.rc -= knp[i].w;
-	 		sub.x.push_back(1);
-	 		i++;
+	 	sub.cp += knp[i].p;
+	 	sub.rc -= knp[i].w;
+	 	sub.x.push_back(1);
+	 	i++;
 	}
 	return S;
 }
@@ -160,6 +160,7 @@ void BnB_algo::BnB_Solver(){
 	//cout<<"x = "<<sub[0].x[0]<<"\n";
 	//cout<<"\n-----("<<sub[0].cp<<","<<sub[0].cw<<")-----\n";
 	//cout<<"size = "<<sub[0].x.size()<<"\n";
+	
 	while(true){
 		 if(sub.size()>1){
 		 	for(j=0;i<sub[i-1].x.size();j++){
