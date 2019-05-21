@@ -30,7 +30,7 @@ class BnB_algo{
 	long int N, C;
 	public:
 	void ReadInput(char *file_name);
-	void Bound(Subproblem &S);
+	Subproblem Bound(Subproblem &sub);
 	//void Bounds(int i);
 	void BnB_Solver();
 };
@@ -61,6 +61,7 @@ void BnB_algo::ReadInput(char *file_name){
 }
 Subproblem BnB_algo::Bound(Subproblem &sub){
 	int i;
+	sub.rc=C;
 	for(i=0;i<sub.x.size();i++){
 	 	sub.cp += knp[i].p * sub.x[i];
 	 	sub.rc -= knp[i].w * sub.x[i];
@@ -71,7 +72,13 @@ Subproblem BnB_algo::Bound(Subproblem &sub){
 	 	sub.x.push_back(1);
 	 	i++;
 	}
-	return S;
+	sub.ub = sub.cp+(((double)knp[i].p/(double)knp[i].w)*(double)sub.rc);
+	if(sub.cp>record.p){
+	 		record.p=sub.cp;
+			record.x.clear();
+	 		for(int m=0; m<sub.x.size(); m++)record.x.push_back(sub.x[m]);
+	 	}
+	return sub;
 }
 /*	Subproblem temp_x1, temp_x0;
 	int k=i+1;
@@ -147,11 +154,21 @@ Subproblem BnB_algo::Bound(Subproblem &sub){
 	}
 }*/
 void BnB_algo::BnB_Solver(){
-	int i=0, j=0, k=0, l=0;
-	for(int i=0; i<N; i++){
-		Bound(i);
-
+	int i, j;
+	Subproblem temp_x1, temp_x0;
+	temp_x1.x.push_back(1);
+	sub.push_back(Bound(temp_x1));
+	temp_x0.x.push_back(0);
+	sub.push_back(Bound(temp_x0));
+	for(i=0; i<sub.size(); i++){
+		cout<<"\n sub "<<i+1<<" = (cp="<<sub[i].cp<<", rc="<<sub[i].rc<<", ub="<<sub[i].ub<<") {";
+		for(j=0; j<sub[i].x.size(); j++){
+			cout<<sub[i].x[j];
+			if(j<sub[i].x.size()-1)cout<<", ";
+		}
+		cout<<"}\n\n";
 	}
+	cout<<" Record = "<<record.p<<"\n\n";
 	//temp.x.push_back(1);
 	//temp_sub.cp=0;
 	//temp_sub.rc=RC;
@@ -161,7 +178,7 @@ void BnB_algo::BnB_Solver(){
 	//cout<<"\n-----("<<sub[0].cp<<","<<sub[0].cw<<")-----\n";
 	//cout<<"size = "<<sub[0].x.size()<<"\n";
 
-	while(true){
+	/*while(true){
 		 if(sub.size()>1){
 		 	for(j=0;i<sub[i-1].x.size();j++){
 		 		SUM=SUM+(input[j].p*sub[i-1].x[j]);
@@ -169,7 +186,7 @@ void BnB_algo::BnB_Solver(){
 		 		temp_sub.x.push_back(sub[i-1].x[j]);
 		 	}
 		 }
-		 
+
 		 k=i;
 		 while(input[k].w<=RC){
 		 	X1_p = X1_p+input[k].p;
@@ -199,12 +216,12 @@ void BnB_algo::BnB_Solver(){
 		 cout<<")\n";
 		i++;
 		 cin.get();
-	}
+	}*/
 }
 int main(int argc, char* argv[]){
 	time_t start, end;
-	vector<Knapsack>input;
-	vector<Sub>sub;
+	//vector<Knapsack>input;
+	//vector<Sub>sub;
 	int size;
 	char* str = NULL;
     if(argc >= 2){
@@ -221,7 +238,7 @@ int main(int argc, char* argv[]){
 	end = clock();
 	float diff((float)end-(float)start);
 	float seconds = diff/CLOCKS_PER_SEC;
-	cout<<fixed<<"Runtime = "<<seconds<<"\t";
+	//cout<<fixed<<"Runtime = "<<seconds<<"\t";
 	//NA.print(size);
 	return 0;
 }
